@@ -33,6 +33,10 @@ export const Top = (props: Props) => {
           <article>
             <h2>{work.title}</h2>
             <p>{work.body}</p>
+            <form action={`/post/${work.id}`} method="POST">
+              <input type="hidden" name="_method" value="DELETE" /> 
+              <input type="submit" value="delete" />
+            </form>
           </article>
         )
       })}

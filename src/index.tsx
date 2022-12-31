@@ -41,4 +41,30 @@ app.post(
   }
 )
 
+app.post(
+  '/post/:id',
+  validator(
+    (v) => ({
+      method: v.body('_method'),
+    }),
+    {
+      done: (res, c) => {
+        if (res.hasError) {
+          return c.redirect('/')
+        }
+      },
+    }
+  ),
+  async (c) => {
+    const { method } = c.req.valid();
+
+    if (method.toLowerCase() === 'delete') {
+      const id = c.req.param('id');
+      await c.env.DB.prepare(`DELETE FROM works WHERE id = '${id}'`)
+        .run()
+    }
+    return c.redirect('/')
+  }
+)
+
 export default app
