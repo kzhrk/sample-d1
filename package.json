@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler publish src/index.ts"
+    "dev": "wrangler dev src/index.tsx",
+    "deploy": "wrangler publish src/index.tsx"
   },
 	"dependencies": {
 		"hono": "^2.7.1"
