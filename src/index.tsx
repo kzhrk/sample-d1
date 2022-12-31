@@ -1,11 +1,44 @@
 import { Hono } from 'hono'
 import { jsx } from 'hono/jsx'
-import { Top } from './Top'
+import { Top, Work } from './Top'
+import { validator } from 'hono/validator'
 
-const app = new Hono()
+interface Env {
+  DB: D1Database
+}
 
-app.get('/', (c) => {
-  return c.html(<Top />)
+const app = new Hono<{ Bindings: Env }>()
+
+app.get('/', async (c) => {
+  const { results } = await c.env.DB.prepare(
+    `SELECT id,title,body FROM works;`
+  ).all<Work>()
+  const works = results
+  return c.html(<Top works={works} />)
 })
+
+app.post(
+  '/post',
+  validator(
+    (v) => ({
+      title: v.body('title').isRequired(),
+      body: v.body('body').isRequired(),
+    }),
+    {
+      done: (res, c) => {
+        if (res.hasError) {
+          return c.redirect('/')
+        }
+      },
+    }
+  ),
+  async (c) => {
+    const { title, body } = c.req.valid()
+    await c.env.DB.prepare(`INSERT INTO works(title, body) VALUES(?, ?);`)
+      .bind(title, body)
+      .run()
+    return c.redirect('/')
+  }
+)
 
 export default app
